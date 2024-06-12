@@ -5,19 +5,19 @@
 #include "window.h"
 using namespace std;
 
-int main() {
-    Roulette roulette;
-    Player player;
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
+    //Roulette roulette;
+    //Player player;
 
-    player.printName();
-    player.setName();
-    player.printName();
+    //player.printName();
+    //player.setName();
+    //player.printName();
 
-    roulette.setBet();
-    cout << "Your bet was: " << roulette.getBet() << "\n";
-    srand(time(NULL));
-    cout << "Your spin was: " << roulette.spin() << "\n"; 
-    srand(time(NULL));
+    //roulette.setBet();
+    //cout << "Your bet was: " << roulette.getBet() << "\n";
+    //srand(time(NULL));
+    //cout << "Your spin was: " << roulette.spin() << "\n"; 
+    //srand(time(NULL));
 
     Window* pWindow = new Window();
     bool running = true;

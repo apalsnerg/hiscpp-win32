@@ -15,7 +15,13 @@ Roulette::Roulette(string name) {
 
 void Roulette::setBet() {
     cout << "How much would you like to bet?" << "\n" << ">> ";
-    cin >> bet;
+    int userBet = 0;
+    try {
+        cin >> userBet;
+    } catch (std::invalid_argument) {
+		cout << "Not a valid number! Try again!" << "\n" << ">> ";
+		setBet();
+	}
 }
 
 int Roulette::getBet() {

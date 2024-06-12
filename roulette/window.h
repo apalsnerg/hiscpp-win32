@@ -5,8 +5,9 @@
 #pragma once
 #include <tchar.h>
 #include <windows.h>
+#include <wingdi.h>
 
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 class Window {
     public:
@@ -19,7 +20,7 @@ class Window {
 
     private:
         HINSTANCE m_hInstance;
-        HWND m_hWnd;
+        HWND m_hwnd;
 };
 
 #endif
