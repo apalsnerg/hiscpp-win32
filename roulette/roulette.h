@@ -15,15 +15,32 @@ class Roulette {
     int pot;
     Player player;
     int rolledNumber;
+    int playerNumber;
 
     public:
         Roulette(string name = "George Smith");
 
-        void setBet();
+        void getDesiredBet();
 
-        int getBet();
+        void setBet(int newBet);
+
+        Player& getPlayer();
+
+        void setPot(int newPot);
+
+        void increasePot(int potAddVal);
+
+		void reducePot(int potReduceVal);
+
+		int getPot() const;
+
+        int getBet() const;
 
         int spin();
+
+        int getRolledNumber() const;
+
+        int getPlayerNumber() const;
 };
 
 #endif

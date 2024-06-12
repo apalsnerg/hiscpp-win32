@@ -17,7 +17,12 @@ class Player {
 
         void updateBalance(int balance);
 
-        void printName();
+        void printName() const;
+
+        string getName() const;
+
+		int getBalance() const;
+
     private:
         int balance;
 };

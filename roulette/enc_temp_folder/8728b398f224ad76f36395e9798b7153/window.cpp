@@ -18,7 +18,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     switch (uMsg) {
         case WM_COMMAND:
             switch (wParam) {
-                case FILE_MENU_BALANCE: { // Change the players's balance by 10 TODO: make a menu item where you can say how much you want to bet
+                case FILE_MENU_BALANCE: {
                     Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
                     Roulette& roulette = pWindow->getRoulette();
                     Player& player = roulette.getPlayer();

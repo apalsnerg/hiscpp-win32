@@ -18,7 +18,6 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
     //srand(time(NULL));
     //cout << "Your spin was: " << roulette.spin() << "\n"; 
     //srand(time(NULL));
-
     Window* pWindow = new Window();
     bool running = true;
     while (running) {
