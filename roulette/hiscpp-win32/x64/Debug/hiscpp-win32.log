@@ -1,3 +1,3 @@
 ﻿  window.cpp
-C:\Users\Birk Höijer\source\repos\apalsnerg\hiscpp-win32\roulette\window.cpp(55,23): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  hiscpp-win32.vcxproj -> C:\Users\Birk Höijer\source\repos\apalsnerg\hiscpp-win32\roulette\x64\Debug\hiscpp-win32.exe
+C:\Users\Birk Höijer\source\repos\apalsnerg\hiscpp-win32\roulette\window.cpp(61,23): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Birk Höijer\source\repos\apalsnerg\hiscpp-win32\roulette\window.cpp(86,37): error C2039: 'getTextBoxText': is not a member of 'Window'

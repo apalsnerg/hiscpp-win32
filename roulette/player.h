@@ -9,7 +9,7 @@ using namespace std;
 class Player {
     public:
         string name;
-        Player(string name = "George Smith", int balance = 100);
+        Player(string name = "George Smith", int balance = 1000);
 
         void setName();
 

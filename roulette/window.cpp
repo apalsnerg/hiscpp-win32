@@ -8,37 +8,43 @@
 
 constexpr unsigned int FILE_MENU_BALANCE = 1;
 constexpr unsigned int FILE_MENU_BET = 2;
+constexpr unsigned int FILE_MENU_BALANCECHANGE = 3;
+HWND ghParentWnd;
 
 using namespace std;
 
 /*
  * Switch to handle dispatched messages
  */
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WindowProc(HWND hParentWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_COMMAND:
             switch (wParam) {
                 case FILE_MENU_BALANCE: { // Change the players's balance by 10 TODO: make a menu item where you can say how much you want to bet
-                    Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+                    Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtr(hParentWnd, GWLP_USERDATA));
                     Roulette& roulette = pWindow->getRoulette();
                     Player& player = roulette.getPlayer();
                     player.updateBalance(10);
                     int balance = player.getBalance();
                     wstring balanceText = to_wstring(balance);
-                    pWindow->drawText(hWnd, balanceText);
+                    string name = player.getName();
+                    wstring nameText(name.begin(), name.end());
+                    pWindow->drawText(hParentWnd, nameText);
 					break;
                 }
                 default:
 					break;
             }
             break;
-        case WM_CREATE: // Add menus when window is created
-            Window::addMenus(hWnd);
+        case WM_CREATE: // Add menus and buttons etc when window is created
+            ghParentWnd = hParentWnd;
+            Window::addMenus(hParentWnd);
+            Window::createTextBox();
             break;
         case WM_CLOSE: // Prompt user to confirm to close
             /* If user confirms to exit */
-            if (MessageBox(hWnd, L"Are you sure you want to exit?", L"Exit", MB_OKCANCEL) == IDOK) { 
-                DestroyWindow(hWnd);
+            if (MessageBox(hParentWnd, L"Are you sure you want to exit?", L"Exit", MB_OKCANCEL) == IDOK) { 
+                DestroyWindow(hParentWnd);
             }
             return 0; // Return 0 if user cancels exit to do nothing
             break;
@@ -58,33 +64,43 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             int gVal = rand() % 255 + 1;
 			int bVal = rand() % 255 + 1;
             HBRUSH brush = CreateSolidBrush(RGB(rVal, gVal, bVal)); // Create brush object with randomized RGB values
-            HDC hdc = BeginPaint(hWnd, &ps);
+            HDC hdc = BeginPaint(hParentWnd, &ps);
 
             // Do stuff
 
             FillRect(hdc, &ps.rcPaint, brush);
 
-            EndPaint(hWnd, &ps);
+            EndPaint(hParentWnd, &ps);
             break;
         }
         default:
-            return DefWindowProc(hWnd, uMsg, wParam, lParam); // Default behavior for event
+            return DefWindowProc(hParentWnd, uMsg, wParam, lParam); // Default behavior for event
     }
-    return DefWindowProc(hWnd, uMsg, wParam, lParam); // Default behavior for event
+    return DefWindowProc(hParentWnd, uMsg, wParam, lParam); // Default behavior for event
+}
+
+LRESULT CALLBACK TextBoxProc(HWND hTextBoxWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    switch (uMsg) {
+        case WM_KEYDOWN:
+            Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtr(ghParentWnd, GWLP_USERDATA));
+            wstring text = pWindow->getTextBoxText();
+            pWindow->drawText(ghParentWnd, text);
+    }
+    return DefWindowProc(hTextBoxWnd, uMsg, wParam, lParam);
 }
 
 /*
  * Constructor
  */
-Window::Window()
-    : m_hInstance(GetModuleHandle(nullptr)), // Get handle to instance of window
-      m_roulette()
+Window::Window(string name, int balance, int maxBet)
+    : m_hParentInstance(GetModuleHandle(nullptr)), // Get handle to instance of window
+      m_roulette(name, balance, maxBet)
 {
     const wchar_t* CLASS_NAME = L"Roulette Window Class"; // Widechar name of class
 
     WNDCLASS wndClass      = {}; // Initialize class for window
     wndClass.lpszClassName = CLASS_NAME; // Set class name
-    wndClass.hInstance     = m_hInstance; // Set class instance
+    wndClass.hInstance     = m_hParentInstance; // Set class instance
     wndClass.hIcon         = LoadIcon(NULL, IDI_WINLOGO); // Set window icon
     wndClass.hCursor       = LoadCursor(NULL, IDC_ARROW); // Set cursor appearance
     wndClass.lpfnWndProc   = WindowProc; // Set window procedure
@@ -94,18 +110,18 @@ Window::Window()
     /* Set window style */
     DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 
-    int width  = 640; // Set base window width
-    int height = 480; // Set base window height
+    int width  = 1280; // Set base window width
+    int height = 960; // Set base window height
 
     RECT rect{}; // Initialize rectangle
-    rect.left   = 250; // Set window spawn distance from left side of screen
-    rect.top    = 250; // Set window spawn distance from top of screen
+    rect.left   = 0; // Set window spawn distance from left side of screen
+    rect.top    = 600; // Set window spawn distance from top of screen
     rect.right  = rect.left + width; // Set window width
     rect.bottom = rect.top + height; // Set window height
 
     AdjustWindowRect(&rect, style, false); // Adjust window size
 
-    m_hwnd = CreateWindowExW( // Create the window process with our created parameters
+    m_hParentWnd = CreateWindowExW( // Create the window process with our created parameters
         0,
         CLASS_NAME,
         L"Roulette",
@@ -116,13 +132,13 @@ Window::Window()
         rect.bottom - rect.top,
         NULL,
         NULL,
-        m_hInstance,
+        m_hParentInstance,
         NULL
     );
 
-    SetWindowLongPtr(m_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+    SetWindowLongPtr(m_hParentWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-    ShowWindow(m_hwnd, SW_SHOW); // Make window visible
+    ShowWindow(m_hParentWnd, SW_SHOW); // Make window visible
 };
 
 
@@ -132,15 +148,15 @@ Window::Window()
 Window::~Window() {
     const wchar_t* CLASS_NAME = L"RouletteWindowClass"; // Get name of class to unregister (hardcoded here)
 
-    UnregisterClass(CLASS_NAME, m_hInstance); // Unregister (destroy) the object with the class name and the hInstance for our window
+    UnregisterClass(CLASS_NAME, m_hParentInstance); // Unregister (destroy) the object with the class name and the hInstance for our window
 };
 
-void Window::drawText(HWND hWnd, wstring text) {
-    HDC hdc = GetDC(hWnd);
+void Window::drawText(HWND hParentWnd, wstring text) {
+    HDC hdc = GetDC(hParentWnd);
     RECT rect;
-    GetClientRect(hWnd, &rect);
+    GetClientRect(hParentWnd, &rect);
     DrawText(hdc, text.c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    ReleaseDC(hWnd, hdc);
+    ReleaseDC(hParentWnd, hdc);
 }
 
 /*
@@ -169,17 +185,67 @@ bool Window::processMessages() {
     return true;
 };
 
-HMENU hMenu;
-
-void Window::addMenus(HWND hWnd) {
-    hMenu = CreateMenu();
+void Window::addMenus(HWND hParentWnd) {
+    HMENU hMenu = CreateMenu();
     HMENU hFileMenu = CreateMenu();
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"Modify");
     
     AppendMenu(hFileMenu, MF_STRING, FILE_MENU_BALANCE, L"Increase Balance");
     AppendMenu(hFileMenu, MF_STRING, FILE_MENU_BET, L"Set Pot");
+    AppendMenu(hFileMenu, MF_STRING, FILE_MENU_BALANCECHANGE, L"Change Balance");
     AppendMenu(hFileMenu, MF_SEPARATOR, 0, NULL);
 
-    SetMenu(hWnd, hMenu);
+    SetMenu(hParentWnd, hMenu);
+}
+
+HWND Window::createTextBox() {
+    HINSTANCE hTextBoxInstance = GetModuleHandle(nullptr);
+    HWND hTextWnd;
+
+    const wchar_t* CLASS_NAME = L"TextBoxClass";
+
+    WNDCLASS wndTXBXClass = {};
+    wndTXBXClass.lpszClassName = CLASS_NAME;
+    wndTXBXClass.hInstance = hTextBoxInstance;
+    wndTXBXClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndTXBXClass.lpfnWndProc = TextBoxProc;
+    
+    RegisterClass(&wndTXBXClass);
+
+    DWORD style = WS_CHILDWINDOW | WS_VISIBLE;
+
+    int width = 420;
+    int height = 240;
+
+    RECT rect{};
+    rect.left = 0;
+    rect.top = 0;
+    rect.right = rect.left + width;
+    rect.bottom = rect.top + height;
+
+    AdjustWindowRect(&rect, style, false);
+    
+
+    HMENU hTextBoxMenu = CreateMenu();
+    AppendMenu(hTextBoxMenu, MF_STRING, 0, L"Test");
+    
+    hTextWnd = CreateWindowExW(
+        0,
+        L"EDIT",
+        L"test",
+        style,
+        rect.left,
+        rect.top,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        ghParentWnd,
+        hTextBoxMenu,
+        hTextBoxInstance,
+        NULL
+    );
+
+    ShowWindow(hTextWnd, SW_SHOW);
+
+    return hTextWnd;
 }

@@ -16,9 +16,10 @@ class Roulette {
     Player player;
     int rolledNumber;
     int playerNumber;
+    int maxBet;
 
     public:
-        Roulette(string name = "George Smith");
+        Roulette(string name = "George Smith", int balance = 1000, int maxBet = 100);
 
         void getDesiredBet();
 

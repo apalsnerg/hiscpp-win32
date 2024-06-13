@@ -1,5 +1,6 @@
 #include <iostream>
 #include <windows.h>
+#include <string>
 #include "roulette.h"
 #include "player.h"
 #include "window.h"

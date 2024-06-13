@@ -9,13 +9,9 @@ using namespace std;
  * 
  * @param string name the name of the Player
  */
-Roulette::Roulette(string name) 
-     : bet(0), playerNumber(0), pot(10000), rolledNumber(0) {
-    if (name != "") {
-        player = Player(name);
-    } else {
-        player = Player();
-    }
+Roulette::Roulette(string name, int balance, int maxBet) 
+     :playerNumber(0), pot(10000), rolledNumber(0), maxBet(maxBet) {
+	 Player player = Player(name, balance);
 }
 
 /*

@@ -14,7 +14,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 class Window {
 
     public:
-        Window();
+        Window(string name = "Filip Iano", int balance = 1000, int maxbet = 100);
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
         ~Window();
@@ -27,9 +27,11 @@ class Window {
 
         void drawText(HWND, wstring);
 
+        static HWND createTextBox();
+
     private:
-        HINSTANCE m_hInstance;
-        HWND m_hwnd;
+        HINSTANCE m_hParentInstance;
+        HWND m_hParentWnd;
         Roulette m_roulette;
 };
 
